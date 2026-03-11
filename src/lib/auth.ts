@@ -1,12 +1,10 @@
-// src/lib/auth.ts
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
-  // Tell NextAuth to use /api/auth as the base path (no [...nextauth] needed)
   pages: {
     signIn: "/admin/login",
     error: "/admin/login",
@@ -19,23 +17,43 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        console.log("[AUTH] authorize called with email:", credentials?.email);
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        if (!credentials?.email || !credentials?.password) {
+          console.log("[AUTH] Missing credentials");
+          return null;
+        }
 
-        if (!user) return null;
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) return null;
+          console.log("[AUTH] User found:", !!user);
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
+          if (!user) {
+            console.log("[AUTH] No user found for email:", credentials.email);
+            return null;
+          }
+
+          console.log("[AUTH] Comparing password, hash length:", user.password.length);
+
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+
+          console.log("[AUTH] Password valid:", isValid);
+
+          if (!isValid) return null;
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          };
+        } catch (err) {
+          console.error("[AUTH] Error in authorize:", err);
+          return null;
+        }
       },
     }),
   ],
