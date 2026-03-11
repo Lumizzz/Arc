@@ -1,7 +1,3 @@
-// src/app/admin/dashboard/page.tsx
-import { getToken } from "next-auth/jwt";
-import { headers, cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { getSiteData, getAllNavLinks } from "@/lib/actions";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";

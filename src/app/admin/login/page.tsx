@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { signIn } from "next-auth/react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -21,26 +21,15 @@ export default function AdminLoginPage() {
       email,
       password,
       redirect: false,
-      callbackUrl: "/admin/dashboard",
     });
 
     setLoading(false);
 
-    if (!result) {
-      setError("No response from server.");
-      return;
-    }
-
-    if (result.error) {
-      // Log the actual error to help debug
-      console.error("SignIn error:", result.error, "Status:", result.status);
-      setError(`Error: ${result.error}`);
-      return;
-    }
-
-    if (result.ok) {
+    if (result?.ok) {
       router.push("/admin/dashboard");
       router.refresh();
+    } else {
+      setError("Invalid email or password.");
     }
   }
 
@@ -50,7 +39,6 @@ export default function AdminLoginPage() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
           style={{ background: "radial-gradient(circle, rgba(80,60,200,0.2) 0%, transparent 70%)" }} />
       </div>
-
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -66,12 +54,10 @@ export default function AdminLoginPage() {
           <span className="font-bold text-lg text-white">Imagica</span>
           <span className="text-white/30 text-sm ml-1">Admin</span>
         </div>
-
         <div className="rounded-2xl p-8"
           style={{ background: "rgba(10,10,30,0.6)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="text-xl font-semibold text-white mb-1">Sign in</h1>
           <p className="text-sm text-white/40 mb-6">Access your admin dashboard</p>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wide">Email</label>
@@ -80,7 +66,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none transition-colors"
+                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                 placeholder="admin@imagica.ai"
               />
@@ -92,19 +78,17 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none transition-colors"
+                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                 placeholder="••••••••"
               />
             </div>
-
             {error && (
-              <p className="text-red-400 text-sm px-3 py-2 rounded-lg break-all"
+              <p className="text-red-400 text-sm px-3 py-2 rounded-lg"
                 style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                 {error}
               </p>
             )}
-
             <button
               type="submit"
               disabled={loading}
