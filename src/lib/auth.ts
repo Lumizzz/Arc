@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -17,41 +16,32 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("[AUTH] authorize called with email:", credentials?.email);
-
-        if (!credentials?.email || !credentials?.password) {
-          console.log("[AUTH] Missing credentials");
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
         try {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
 
-          console.log("[AUTH] User found:", !!user);
+          if (!user) return null;
 
-          if (!user) {
-            console.log("[AUTH] No user found for email:", credentials.email);
-            return null;
-          }
-
-          console.log("[AUTH] Comparing password, hash length:", user.password.length);
-
-          const isValid = await bcrypt.compare(credentials.password, user.password);
-
-          console.log("[AUTH] Password valid:", isValid);
+          // Use dynamic import to avoid edge runtime issues with bcryptjs
+          const bcrypt = await import("bcryptjs");
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
 
           if (!isValid) return null;
 
           return {
             id: user.id,
-            name: user.name,
+            name: user.name ?? "",
             email: user.email,
             role: user.role,
           };
         } catch (err) {
-          console.error("[AUTH] Error in authorize:", err);
+          console.error("[AUTH] authorize error:", err);
           return null;
         }
       },
