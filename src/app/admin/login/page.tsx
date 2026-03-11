@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { signIn } from "next-auth/react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -16,37 +17,31 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      // Call NextAuth directly via fetch to avoid any client-side basePath issues
-      const res = await fetch("/api/auth/callback/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          email,
-          password,
-          csrfToken: await getCsrfToken(),
-          callbackUrl: "/admin/dashboard",
-          json: "true",
-        }),
-      });
-
-      if (res.ok) {
-        router.push("/admin/dashboard");
-        router.refresh();
-      } else {
-        setError("Invalid email or password.");
-      }
-    } catch {
-      setError("Something went wrong. Please try again.");
-    }
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl: "/admin/dashboard",
+    });
 
     setLoading(false);
-  }
 
-  async function getCsrfToken() {
-    const res = await fetch("/api/auth/csrf");
-    const data = await res.json();
-    return data.csrfToken;
+    if (!result) {
+      setError("No response from server.");
+      return;
+    }
+
+    if (result.error) {
+      // Log the actual error to help debug
+      console.error("SignIn error:", result.error, "Status:", result.status);
+      setError(`Error: ${result.error}`);
+      return;
+    }
+
+    if (result.ok) {
+      router.push("/admin/dashboard");
+      router.refresh();
+    }
   }
 
   return (
@@ -104,7 +99,7 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm px-3 py-2 rounded-lg"
+              <p className="text-red-400 text-sm px-3 py-2 rounded-lg break-all"
                 style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                 {error}
               </p>
