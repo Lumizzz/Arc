@@ -64,8 +64,11 @@ function SaveButton({ pending, label = "Save changes" }: { pending: boolean; lab
 
 function Toast({ message, type }: { message: string; type: "success" | "error" }) {
   return (
-    <div className={`text-xs px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5
-      ${type === "success" ? "bg-green-500/15 text-green-400 border border-green-500/20" : "bg-red-500/15 text-red-400 border border-red-500/20"}`}>
+    <div className={`text-xs px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 ${
+      type === "success"
+        ? "bg-green-500/15 text-green-400 border border-green-500/20"
+        : "bg-red-500/15 text-red-400 border border-red-500/20"
+    }`}>
       {type === "success" ? "✓" : "✕"} {message}
     </div>
   );
@@ -75,16 +78,16 @@ function Toast({ message, type }: { message: string; type: "success" | "error" }
 function HeroForm({ hero }: { hero: SiteData["hero"] }) {
   const [form, setForm] = useState({ ...hero });
   const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [status, setStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       try {
         await updateHeroContent(form);
-        setStatus({ msg: "Hero content updated!", type: "success" });
+        setStatus({ message: "Hero content updated!", type: "success" });
       } catch {
-        setStatus({ msg: "Failed to save.", type: "error" });
+        setStatus({ message: "Failed to save.", type: "error" });
       }
     });
   };
@@ -117,7 +120,7 @@ function HeroForm({ hero }: { hero: SiteData["hero"] }) {
       </div>
       <div className="flex items-center gap-4 pt-1">
         <SaveButton pending={isPending} />
-        {status && <Toast {...status} />}
+        {status && <Toast message={status.message} type={status.type} />}
       </div>
     </form>
   );
@@ -130,12 +133,12 @@ function SettingsForm({ settings, headerCtas }: { settings: SiteData["settings"]
     backgroundImage: settings.backgroundImage ?? "",
     logoIconUrl: settings.logoIconUrl ?? "",
   });
-  const [entLabel, setEntLabel] = useState(headerCtas.find(c => c.key === "enterprise")?.label ?? "Enterprise");
-  const [entHref, setEntHref] = useState(headerCtas.find(c => c.key === "enterprise")?.href ?? "#");
-  const [loginLabel, setLoginLabel] = useState(headerCtas.find(c => c.key === "login")?.label ?? "Login");
-  const [loginHref, setLoginHref] = useState(headerCtas.find(c => c.key === "login")?.href ?? "/login");
+  const [entLabel, setEntLabel] = useState(headerCtas.find((c) => c.key === "enterprise")?.label ?? "Enterprise");
+  const [entHref, setEntHref] = useState(headerCtas.find((c) => c.key === "enterprise")?.href ?? "#");
+  const [loginLabel, setLoginLabel] = useState(headerCtas.find((c) => c.key === "login")?.label ?? "Login");
+  const [loginHref, setLoginHref] = useState(headerCtas.find((c) => c.key === "login")?.href ?? "/login");
   const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [status, setStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,9 +147,9 @@ function SettingsForm({ settings, headerCtas }: { settings: SiteData["settings"]
         await updateSiteSettings(form);
         await updateHeaderCta("enterprise", { label: entLabel, href: entHref });
         await updateHeaderCta("login", { label: loginLabel, href: loginHref });
-        setStatus({ msg: "Settings saved!", type: "success" });
+        setStatus({ message: "Settings saved!", type: "success" });
       } catch {
-        setStatus({ msg: "Failed to save.", type: "error" });
+        setStatus({ message: "Failed to save.", type: "error" });
       }
     });
   };
@@ -188,7 +191,7 @@ function SettingsForm({ settings, headerCtas }: { settings: SiteData["settings"]
 
       <div className="flex items-center gap-4 pt-1">
         <SaveButton pending={isPending} />
-        {status && <Toast {...status} />}
+        {status && <Toast message={status.message} type={status.type} />}
       </div>
     </form>
   );
@@ -200,7 +203,7 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
   const [newLabel, setNewLabel] = useState("");
   const [newHref, setNewHref] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [status, setStatus] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const handleAdd = () => {
     if (!newLabel || !newHref) return;
@@ -210,9 +213,9 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
         setLinks([...links, created]);
         setNewLabel("");
         setNewHref("");
-        setStatus({ msg: "Link added!", type: "success" });
+        setStatus({ message: "Link added!", type: "success" });
       } catch {
-        setStatus({ msg: "Failed to add.", type: "error" });
+        setStatus({ message: "Failed to add.", type: "error" });
       }
     });
   };
@@ -222,9 +225,9 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
       try {
         await deleteNavLink(id);
         setLinks(links.filter((l) => l.id !== id));
-        setStatus({ msg: "Deleted.", type: "success" });
+        setStatus({ message: "Deleted.", type: "success" });
       } catch {
-        setStatus({ msg: "Failed to delete.", type: "error" });
+        setStatus({ message: "Failed to delete.", type: "error" });
       }
     });
   };
@@ -243,19 +246,18 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
   const handleSaveEdit = (id: string, label: string, href: string) => {
     startTransition(async () => {
       await updateNavLink(id, { label, href });
-      setStatus({ msg: "Updated.", type: "success" });
+      setStatus({ message: "Updated.", type: "success" });
     });
   };
 
   return (
     <div className="space-y-3">
-      {/* Existing links */}
       {links.map((link) => (
         <div key={link.id} className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
           <button
+            type="button"
             onClick={() => handleToggle(link.id, link.isActive)}
             className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${link.isActive ? "bg-green-500" : "bg-white/15"}`}
-            title={link.isActive ? "Active – click to hide" : "Inactive – click to show"}
           >
             <span className={`block w-3 h-3 rounded-full bg-white transition-transform mx-0.5 ${link.isActive ? "translate-x-4" : "translate-x-0"}`} />
           </button>
@@ -270,12 +272,14 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
             className="flex-1 bg-transparent text-white/40 text-sm outline-none border-b border-transparent focus:border-white/20 pb-0.5 transition-colors"
           />
           <button
+            type="button"
             onClick={() => handleSaveEdit(link.id, link.label, link.href)}
             className="text-xs text-white/40 hover:text-white transition-colors px-2"
           >
             Save
           </button>
           <button
+            type="button"
             onClick={() => handleDelete(link.id)}
             className="text-xs text-red-400/60 hover:text-red-400 transition-colors px-1"
           >
@@ -284,19 +288,11 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
         </div>
       ))}
 
-      {/* Add new */}
       <div className="flex gap-2 pt-2">
-        <Input
-          placeholder="Label (e.g. Pricing)"
-          value={newLabel}
-          onChange={(e) => setNewLabel(e.target.value)}
-        />
-        <Input
-          placeholder="URL (e.g. #pricing)"
-          value={newHref}
-          onChange={(e) => setNewHref(e.target.value)}
-        />
+        <Input placeholder="Label (e.g. Pricing)" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} />
+        <Input placeholder="URL (e.g. #pricing)" value={newHref} onChange={(e) => setNewHref(e.target.value)} />
         <button
+          type="button"
           onClick={handleAdd}
           disabled={isPending || !newLabel || !newHref}
           className="px-4 h-10 rounded-xl bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors disabled:opacity-40 flex-shrink-0"
@@ -304,19 +300,19 @@ function NavLinksManager({ links: initialLinks }: { links: any[] }) {
           + Add
         </button>
       </div>
-      {status && <Toast {...status} />}
+      {status && <Toast message={status.message} type={status.type} />}
     </div>
   );
 }
 
 // ─── Stats Bar ────────────────────────────────────────────────────────────────
-function StatsBar({ data }: { data: SiteData; allNavLinks: any[] }) {
+function StatsBar({ data }: { data: SiteData }) {
   return (
     <div className="grid grid-cols-3 gap-4 mb-8">
       {[
         { label: "Nav Links", value: data.navLinks.length },
         { label: "CTA Buttons", value: data.headerCtas.length },
-        { label: "Active", value: "Live" },
+        { label: "Status", value: "Live" },
       ].map((stat) => (
         <div key={stat.label} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
           <p className="text-2xl font-bold text-white">{stat.value}</p>
@@ -337,7 +333,6 @@ export function AdminDashboard({
 }) {
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Page header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Content Manager</h1>
@@ -346,25 +341,23 @@ export function AdminDashboard({
         <a
           href="/"
           target="_blank"
+          rel="noreferrer"
           className="text-xs text-white/35 hover:text-white/60 flex items-center gap-1 transition-colors"
         >
           View site ↗
         </a>
       </div>
 
-      <StatsBar data={siteData} allNavLinks={allNavLinks} />
+      <StatsBar data={siteData} />
 
-      {/* Hero Content */}
       <Card id="hero" title="Hero Section">
         <HeroForm hero={siteData.hero} />
       </Card>
 
-      {/* Navigation */}
       <Card id="nav" title="Navigation Links">
         <NavLinksManager links={allNavLinks} />
       </Card>
 
-      {/* Global Settings */}
       <Card id="settings" title="Global Settings & CTAs">
         <SettingsForm settings={siteData.settings} headerCtas={siteData.headerCtas} />
       </Card>

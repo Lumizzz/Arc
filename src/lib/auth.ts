@@ -10,6 +10,8 @@ export const authOptions: NextAuthOptions = {
     signIn: "/admin/login",
     error: "/admin/login",
   },
+  // Point NextAuth to the non-bracket route path
+  // This avoids GitHub web UI upload issues with [...nextauth] folder names
   providers: [
     CredentialsProvider({
       name: "credentials",

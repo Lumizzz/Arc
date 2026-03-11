@@ -25,6 +25,7 @@ export default function AdminLoginPage() {
       email,
       password,
       redirect: false,
+      callbackUrl,
     });
 
     setLoading(false);
@@ -38,9 +39,9 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-[#060612] flex items-center justify-center px-4">
-      {/* Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
+        <div
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
           style={{ background: "radial-gradient(circle, rgba(80,60,200,0.2) 0%, transparent 70%)" }}
         />
       </div>
@@ -51,7 +52,6 @@ export default function AdminLoginPage() {
         transition={{ duration: 0.6 }}
         className="relative w-full max-w-sm"
       >
-        {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="relative w-7 h-7 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border border-white/30" />
@@ -62,7 +62,6 @@ export default function AdminLoginPage() {
           <span className="text-white/30 text-sm ml-1">Admin</span>
         </div>
 
-        {/* Card */}
         <div className="glass-dark rounded-2xl p-8">
           <h1 className="text-xl font-semibold text-white mb-1">Sign in</h1>
           <p className="text-sm text-white/40 mb-6">Access your admin dashboard</p>
@@ -113,7 +112,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-xs text-white/20 mt-4">
-          Default: admin@imagica.ai / admin123
+          admin@imagica.ai / admin123
         </p>
       </motion.div>
     </div>
