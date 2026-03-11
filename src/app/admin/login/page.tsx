@@ -3,18 +3,15 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/admin/dashboard";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +22,6 @@ export default function AdminLoginPage() {
       email,
       password,
       redirect: false,
-      callbackUrl,
     });
 
     setLoading(false);
@@ -33,7 +29,8 @@ export default function AdminLoginPage() {
     if (result?.error) {
       setError("Invalid email or password.");
     } else {
-      router.push(callbackUrl);
+      router.push("/admin/dashboard");
+      router.refresh();
     }
   }
 
@@ -62,7 +59,14 @@ export default function AdminLoginPage() {
           <span className="text-white/30 text-sm ml-1">Admin</span>
         </div>
 
-        <div className="glass-dark rounded-2xl p-8">
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: "rgba(10,10,30,0.6)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
           <h1 className="text-xl font-semibold text-white mb-1">Sign in</h1>
           <p className="text-sm text-white/40 mb-6">Access your admin dashboard</p>
 
@@ -76,7 +80,8 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-white/30 transition-colors"
+                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                 placeholder="admin@imagica.ai"
               />
             </div>
@@ -90,13 +95,15 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-white/30 transition-colors"
+                className="w-full h-11 px-4 rounded-xl text-white text-sm placeholder-white/25 outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+              <p className="text-red-400 text-sm px-3 py-2 rounded-lg"
+                style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                 {error}
               </p>
             )}

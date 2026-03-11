@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
+    // Already logged in + trying to visit login page → send to dashboard
     if (req.nextUrl.pathname === "/admin/login" && req.nextauth.token) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
@@ -12,7 +13,9 @@ export default withAuth(
   {
     callbacks: {
       authorized({ token, req }) {
-        if (req.nextUrl.pathname.startsWith("/admin/login")) return true;
+        // Login page is always accessible
+        if (req.nextUrl.pathname === "/admin/login") return true;
+        // All other /admin routes require a token
         if (req.nextUrl.pathname.startsWith("/admin")) return !!token;
         return true;
       },

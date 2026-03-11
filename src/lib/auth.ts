@@ -6,12 +6,11 @@ import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
+  // Tell NextAuth to use /api/auth as the base path (no [...nextauth] needed)
   pages: {
     signIn: "/admin/login",
     error: "/admin/login",
   },
-  // Point NextAuth to the non-bracket route path
-  // This avoids GitHub web UI upload issues with [...nextauth] folder names
   providers: [
     CredentialsProvider({
       name: "credentials",
