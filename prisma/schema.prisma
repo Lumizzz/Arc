@@ -1,0 +1,75 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Supabase: use the POOLED connection URL (port 6543) for runtime queries
+  url       = env("DATABASE_URL")
+  // Supabase: use the DIRECT connection URL (port 5432) for migrations only
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Admin User ──────────────────────────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String                      // bcrypt-hashed
+  role          Role      @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ─── Global Site Settings ────────────────────────────────────────────────────
+model SiteSettings {
+  id              String   @id @default(cuid())
+  key             String   @unique          // e.g. "global"
+  logoText        String   @default("Imagica")
+  logoIconUrl     String?
+  backgroundImage String?                   // URL or gradient CSS string
+  faviconUrl      String?
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Navigation Links ────────────────────────────────────────────────────────
+model NavLink {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Hero Section ────────────────────────────────────────────────────────────
+model HeroContent {
+  id               String   @id @default(cuid())
+  key              String   @unique         // e.g. "main"
+  eyebrowText      String   @default("BUILD A NO-CODE AI APP IN MINUTES")
+  headline         String   @default("A new way to think and create with computers")
+  inputPlaceholder String   @default("Enter your email address")
+  ctaButtonText    String   @default("Get Started")
+  videoDemoText    String   @default("Play Video Demo")
+  videoDemoUrl     String   @default("#")
+  updatedAt        DateTime @updatedAt
+}
+
+// ─── CTA Buttons (Header) ────────────────────────────────────────────────────
+model HeaderCta {
+  id        String   @id @default(cuid())
+  key       String   @unique              // "enterprise" | "login"
+  label     String
+  href      String
+  variant   String   @default("outline")  // "outline" | "solid"
+  order     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
